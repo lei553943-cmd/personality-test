@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>💅 2026 精神状态鉴定器</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=Space+Grotesk:wght@400;600;700;800&display=swap');
+
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+
+:root {
+  --bg: #06060c;
+  --surface: rgba(255,255,255,0.035);
+  --border: rgba(255,255,255,0.06);
+  --text: #edeff2;
+  --dim: rgba(255,255,255,0.35);
+  --pink: #ff2d78;
+  --purp: #a855f7;
+  --blue: #38bdf8;
+  --cyan: #2dd4bf;
+  --lime: #a3e635;
+  --orange: #f97316;
+  --glow-pink: rgba(255,45,120,0.25);
+  --glow-purp: rgba(168,85,247,0.2);
+}
+
+html{scroll-behavior:smooth}
+body{
+  font-family:'Noto Sans SC','Segoe UI',system-ui,-apple-system,sans-serif;
+  background:var(--bg);color:var(--text);
+  min-height:100vh;overflow-x:hidden;
+  line-height:1.6
+}
+
+/* ---- AMBIENT ---- */
+.noise{
+  position:fixed;inset:0;z-index:0;pointer-events:none;
+  opacity:.035;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")
+}
+.grid{
+  position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:linear-gradient(rgba(255,255,255,.015) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.015) 1px,transparent 1px);
+  background-size:50px 50px
+}
+.orb{position:fixed;border-radius:50%;filter:blur(100px);pointer-events:none;z-index:0}
+.orb-1{width:600px;height:600px;background:var(--glow-pink);top:-200px;left:-200px;animation:orbFloat 14s ease-in-out infinite}
+.orb-2{width:500px;height:500px;background:var(--glow-purp);bottom:-150px;right:-150px;animation:orbFloat 18s ease-in-out infinite reverse}
+.orb-3{width:400px;height:400px;background:rgba(56,189,248,.12);top:50%;left:50%;transform:translate(-50%,-50%);animation:orbFloat 20s ease-in-out infinite 2s}
+@keyframes orbFloat{
+  0%,100%{transform:translate(0,0) scale(1)}
+  33%{transform:translate(30px,-25px) scale(1.08)}
+  66%{transform:translate(-20px,20px) scale(.95)}
+}
+
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--pink);border-radius:3px}
+
+/* ---- HERO ---- */
+.hero{position:relative;z-index:1;text-align:center;padding:50px 20px 36px}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  background:rgba(168,85,247,.12);border:1px solid rgba(168,85,247,.2);
+  color:var(--purp);font-size:11px;font-weight:600;
+  padding:5px 14px;border-radius:20px;margin-bottom:18px;
+  letter-spacing:.5px;animation:pulseBadge 2s ease-in-out infinite
+}
+@keyframes pulseBadge{0%,100%{opacity:1}50%{opacity:.65}}
+.hero h1{
+  font-size:clamp(34px,7vw,60px);font-weight:900;line-height:1.12;
+  margin-bottom:14px;letter-spacing:-1px
+}
+.hero h1 .grad{
+  background:linear-gradient(135deg,var(--pink),var(--purp),var(--blue));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text
+}
+.hero p{color:var(--dim);font-size:15px;max-width:460px;margin:0 auto;line-height:1.7}
+
+/* ---- CONTAINER ---- */
+.container{position:relative;z-index:1;max-width:620px;margin:0 auto;padding:0 16px 70px}
+
+/* ---- CARDS ---- */
+.card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:18px;padding:38px 32px;
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  transition:all .3s ease
+}
+
+/* ---- START ---- */
+#startCard{text-align:center}
+.start-icon{font-size:64px;display:block;margin-bottom:10px;animation:bounce 2s ease-in-out infinite}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+#startCard h2{font-size:20px;margin-bottom:10px;font-weight:700}
+#startCard p{color:var(--dim);font-size:14px;margin-bottom:28px;line-height:1.7}
+
+/* ---- BUTTONS ---- */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  padding:13px 32px;border:none;border-radius:11px;
+  font-family:inherit;font-size:15px;font-weight:600;
+  cursor:pointer;transition:all .25s ease;position:relative;overflow:hidden
+}
+.btn-primary{
+  background:linear-gradient(135deg,var(--pink),#d41e60);
+  color:#fff;box-shadow:0 4px 24px var(--glow-pink)
+}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 36px var(--glow-pink)}
+.btn-primary:active{transform:scale(.96)}
+.btn-outline{
+  background:transparent;color:var(--text);
+  border:1px solid rgba(255,255,255,.1)
+}
+.btn-outline:hover{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.18)}
+.btn-sm{padding:10px 20px;font-size:13px}
+
+/* ---- PROGRESS ---- */
+.progress-wrap{display:none;margin-bottom:24px}
+.progress-bar{height:3px;background:rgba(255,255,255,.05);border-radius:3px;overflow:hidden;margin-bottom:7px}
+.progress-fill{height:100%;width:0;background:linear-gradient(90deg,var(--pink),var(--purp));border-radius:3px;transition:width .5s cubic-bezier(.22,1,.36,1)}
+.progress-meta{display:flex;justify-content:space-between;font-size:12px;color:var(--dim)}
+
+/* ---- QUESTION ---- */
+#questionCard{display:none}
+.q-head{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.q-dot{width:6px;height:6px;border-radius:50%;background:var(--pink);flex-shrink:0}
+.q-number{font-size:11px;font-weight:600;color:var(--dim);letter-spacing:1.5px;text-transform:uppercase}
+.q-text{
+  font-size:19px;font-weight:700;line-height:1.5;margin-bottom:26px;
+  display:flex;align-items:flex-start;gap:10px
+}
+.q-emoji{font-size:26px;flex-shrink:0;margin-top:2px}
+.options{display:flex;flex-direction:column;gap:8px}
+.option{
+  display:flex;align-items:center;gap:12px;
+  padding:14px 18px;
+  background:rgba(255,255,255,.025);
+  border:1px solid rgba(255,255,255,.05);
+  border-radius:11px;cursor:pointer;
+  transition:all .2s ease;font-size:14px;line-height:1.45;text-align:left
+}
+.option:hover{
+  background:rgba(255,255,255,.05);
+  border-color:rgba(255,255,255,.1);
+  transform:translateX(3px)
+}
+.option.selected{
+  background:rgba(255,45,120,.07);
+  border-color:var(--pink);
+  box-shadow:0 0 24px rgba(255,45,120,.06)
+}
+.option-letter{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:24px;height:24px;border-radius:6px;
+  background:rgba(255,255,255,.04);font-size:12px;font-weight:600;color:var(--dim);
+  flex-shrink:0;transition:all .2s ease
+}
+.option.selected .option-letter{
+  background:var(--pink);color:#fff
+}
+
+/* ---- RESULT ---- */
+#resultCard{display:none;animation:resultReveal .6s ease}
+@keyframes resultReveal{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:scale(1)}}
+.result-top{text-align:center;margin-bottom:20px}
+.result-emoji-wrap{
+  position:relative;display:inline-block;margin-bottom:8px
+}
+.result-emoji{
+  font-size:72px;display:block;animation:emojiPop .8s cubic-bezier(.34,1.56,.64,1) .2s both,
+    emojiIdle 3s ease-in-out infinite 1.5s
+}
+@keyframes emojiPop{0%{transform:scale(0) rotate(-10deg);opacity:0}100%{transform:scale(1) rotate(0deg);opacity:1}}
+@keyframes emojiIdle{
+  0%,100%{transform:scale(1) rotate(0deg)}
+  25%{transform:scale(1.06) rotate(-3deg)}
+  50%{transform:scale(1.02) rotate(2deg)}
+  75%{transform:scale(1.08) rotate(-2deg)}
+}
+.emoji-glow{
+  position:absolute;width:100px;height:100px;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,45,120,.25) 0%,transparent 70%);
+  top:50%;left:50%;transform:translate(-50%,-50%);z-index:-1;
+  animation:glowPulse 2s ease-in-out infinite
+}
+@keyframes glowPulse{0%,100%{transform:translate(-50%,-50%) scale(1);opacity:.6}50%{transform:translate(-50%,-50%) scale(1.3);opacity:1}}
+.result-type{font-size:26px;font-weight:800;margin-bottom:2px}
+.result-subtitle{font-size:14px;color:var(--dim);margin-bottom:6px}
+.result-bar-wrap{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px 20px;margin-bottom:20px}
+.result-bar{display:flex;gap:4px;height:28px;border-radius:6px;overflow:hidden;margin-bottom:12px}
+.result-bar-seg{transition:width .8s cubic-bezier(.22,1,.36,1);position:relative;display:flex;align-items:center;justify-content:center;min-width:0}
+.result-bar-seg span{font-size:11px;font-weight:600;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.3);opacity:0;transition:opacity .4s ease .6s}
+.result-bar-seg.active span{opacity:1}
+.result-breakdown{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.br-item{display:flex;align-items:center;gap:8px;padding:6px 10px;background:rgba(255,255,255,.02);border-radius:8px;font-size:12px}
+.br-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.br-label{color:var(--dim);flex:1}
+.br-score{font-weight:600;font-size:13px}
+
+.result-desc{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:14px;padding:22px 24px;margin-bottom:20px
+}
+.result-desc h4{
+  font-size:12px;color:var(--dim);margin-bottom:8px;
+  text-transform:uppercase;letter-spacing:1.5px
+}
+.result-desc p{
+  font-size:14px;line-height:1.8;color:rgba(255,255,255,.72)
+}
+.result-desc .highlight{color:var(--pink);font-weight:600}
+.result-tags{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:24px}
+.tag{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:6px 14px;
+  background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);
+  border-radius:20px;font-size:12px;color:var(--dim);
+  transition:all .2s ease;cursor:default
+}
+.tag:hover{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.12);color:var(--text)}
+.result-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+
+/* ---- SCENE BG ---- */
+.scene-bg{
+  position:fixed;inset:0;z-index:0;pointer-events:none;
+  overflow:hidden;transition:opacity .6s ease
+}
+.scene-particle{
+  position:absolute;
+  font-size:20px;opacity:0;
+  animation:sceneParticle linear infinite;
+  user-select:none
+}
+@keyframes sceneParticle{
+  0%{transform:translateY(0) rotate(0deg);opacity:0}
+  10%{opacity:.5}
+  90%{opacity:.5}
+  100%{transform:translateY(-100vh) rotate(360deg);opacity:0}
+}
+.scene-bg.i .scene-particle{animation:sceneParticleI linear infinite}
+@keyframes sceneParticleI{
+  0%{transform:translateY(0) rotate(0deg);opacity:0}
+  10%{opacity:.3}
+  90%{opacity:.3}
+  100%{transform:translateY(60vh) translateX(20px);opacity:0}
+}
+.scene-bg.s .scene-particle{animation:sceneParticleS linear infinite}
+@keyframes sceneParticleS{
+  0%{transform:translateY(0) scale(0) rotate(0deg);opacity:0}
+  15%{opacity:.6;transform:translateY(-20vh) scale(1.2) rotate(10deg)}
+  50%{transform:translateY(-50vh) scale(1) rotate(-5deg)}
+  100%{transform:translateY(-100vh) scale(.6) rotate(-20deg);opacity:0}
+}
+.scene-bg.w .scene-particle{animation:sceneParticleW linear infinite}
+@keyframes sceneParticleW{
+  0%{transform:translateY(0) translateX(0);opacity:0}
+  10%{opacity:.4}
+  80%{opacity:.4}
+  100%{transform:translateY(-100vh) translateX(30px);opacity:0}
+}
+.scene-bg.g .scene-particle{
+  animation:sceneParticleG linear infinite;
+  animation-duration:3s
+}
+@keyframes sceneParticleG{
+  0%{transform:translateY(0) rotate(0deg) scale(0);opacity:0}
+  20%{opacity:.7;transform:translateY(-6vh) rotate(180deg) scale(1.3)}
+  40%{transform:translateY(-12vh) rotate(360deg) scale(1)}
+  100%{transform:translateY(-30vh) rotate(720deg) scale(.3);opacity:0}
+}
+
+/* ---- DANMAKU ---- */
+.danmaku-container{
+  position:fixed;inset:0;z-index:100;pointer-events:none;overflow:hidden
+}
+.danmaku{
+  position:absolute;white-space:nowrap;
+  font-size:15px;font-weight:600;
+  padding:4px 12px;border-radius:20px;
+  background:rgba(0,0,0,.55);
+  backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
+  border:1px solid rgba(255,255,255,.08);
+  animation:danmakuFly linear forwards;
+  user-select:none;
+  text-shadow:0 1px 4px rgba(0,0,0,.4);
+  letter-spacing:.3px
+}
+.danmaku.pink{color:#ff2d78;border-color:rgba(255,45,120,.25)}
+.danmaku.purp{color:#a855f7;border-color:rgba(168,85,247,.25)}
+.danmaku.blue{color:#38bdf8;border-color:rgba(56,189,248,.25)}
+.danmaku.green{color:#4ade80;border-color:rgba(74,222,128,.25)}
+.danmaku.orange{color:#fb923c;border-color:rgba(251,146,60,.25)}
+.danmaku.cyan{color:#2dd4bf;border-color:rgba(45,212,191,.25)}
+.danmaku.yellow{color:#fbbf24;border-color:rgba(251,191,36,.25)}
+@keyframes danmakuFly{
+  0%{transform:translateX(100vw);opacity:0}
+  5%{opacity:1}
+  90%{opacity:1}
+  100%{transform:translateX(-30vw);opacity:0}
+}
+
+/* ---- fadeSlideUp ---- */
+@keyframes fadeSlideUp{
+  from{opacity:0;transform:translateY(16px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+/* ---- CONFETTI ---- */
+.confetti-container{position:fixed;inset:0;pointer-events:none;z-index:999;overflow:hidden}
+.confetti{
+  position:absolute;width:8px;height:8px;top:-12px;
+  animation:confettiFall linear forwards
+}
+@keyframes confettiFall{
+  0%{transform:translateY(0) rotate(0deg);opacity:1}
+  100%{transform:translateY(105vh) rotate(720deg);opacity:0}
+}
+
+/* ---- SHAKE ---- */
+.shake{animation:shake .4s ease}
+@keyframes shake{
+  0%,100%{transform:translateX(0)}
+  20%{transform:translateX(-5px)}
+  40%{transform:translateX(5px)}
+  60%{transform:translateX(-3px)}
+  80%{transform:translateX(3px)}
+}
+
+/* ---- RESPONSIVE ---- */
+@media(max-width:480px){
+  .hero{padding:36px 14px 28px}
+  .card{padding:26px 18px}
+  .q-text{font-size:17px}
+  .result-type{font-size:22px}
+  .result-breakdown{grid-template-columns:1fr}
+  .result-desc{padding:18px}
+}
+</style>
+</head>
+<body>
+
+<div class="noise"></div>
+<div class="grid"></div>
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+
+<div class="scene-bg" id="sceneBg"></div>
+<div class="danmaku-container" id="danmakuContainer"></div>
+
+<header class="hero">
+  <div class="hero-badge">✦ 2026 最新版</div>
+  <h1><span class="grad">精神状态<br>鉴定器</span></h1>
+  <p>8 个直击灵魂的灵魂拷问，测出你 2026 最真实的抽象身份。<br>结果可能让你笑到失智，也可能让你沉默一整天。</p>
+</header>
+
+<div class="container">
+
+  <!-- START -->
+  <div class="card" id="startCard">
+    <span class="start-icon">🌀</span>
+    <h2>来都来了</h2>
+    <p>8 道题，每题选最像你的那个选项<br>没有对错，只有你有多离谱</p>
+    <button class="btn btn-primary" onclick="startQuiz()">开始鉴定 →</button>
+  </div>
+
+  <!-- PROGRESS -->
+  <div class="progress-wrap" id="progressWrap">
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="progress-meta">
+      <span id="qProgress">1 / 8</span>
+      <span id="qLabel">第 1 题</span>
+    </div>
+  </div>
+
+  <!-- QUESTION -->
+  <div class="card" id="questionCard">
+    <div class="q-head">
+      <div class="q-dot"></div>
+      <span class="q-number" id="qNumber">问题 01</span>
+    </div>
+    <div class="q-text">
+      <span class="q-emoji" id="qEmoji">💀</span>
+      <span id="qText">加载中...</span>
+    </div>
+    <div class="options" id="options"></div>
+  </div>
+
+  <!-- RESULT -->
+  <div id="resultCard">
+
+    <div class="card">
+      <div class="result-top">
+        <div class="result-emoji-wrap">
+          <div class="emoji-glow"></div>
+          <span class="result-emoji" id="resultEmoji">🎭</span>
+        </div>
+        <div class="result-type" id="resultType">加载中...</div>
+        <div class="result-subtitle" id="resultSubtitle">你的 2026 精神状态</div>
+      </div>
+
+      <!-- Bar chart -->
+      <div class="result-bar-wrap">
+        <div class="result-bar" id="resultBar"></div>
+        <div class="result-breakdown" id="resultBreakdown"></div>
+      </div>
+
+      <div class="result-desc">
+        <h4>🧾 鉴定报告</h4>
+        <p id="resultDesc">加载中...</p>
+      </div>
+
+      <div class="result-tags" id="resultTags"></div>
+
+      <div class="result-actions">
+        <button class="btn btn-primary" onclick="startQuiz()">🔄 再来一次</button>
+        <button class="btn btn-outline btn-sm" onclick="shareResult()">📤 拷打朋友</button>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+// ===== QUESTIONS =====
+const Q = [
+  {
+    e:'💀', t:'周五晚上 10 点，你最好的朋友喊你出去嗨，你正在……',
+    o:[
+      {t:'已经躺床上了，被子裹成了蛹，连呼吸都觉得多余',v:'i'},
+      {t:'在工位加班，刚泡了今天第 4 杯咖啡，眼睛快瞎了',v:'w'},
+      {t:'打游戏被队友气得切出去发小红书：家人们谁懂啊',v:'g'},
+      {t:'在刷抖音，嘴上说马上出门，实际刷到了凌晨两点',v:'s'},
+    ]
+  },
+  {
+    e:'🤡', t:'看到别人发「28 岁年入百万，全款买房」的朋友圈，你：',
+    o:[
+      {t:'狠狠共情了，立刻收藏了三个搞钱视频',v:'w'},
+      {t:'评论：哥带带我（内心：又是个卖课的）',v:'s'},
+      {t:'划走了，与我无瓜，我躺我的',v:'i'},
+      {t:'反手发一条：谢谢大家祝福，今天又省了一百万（配图泡面）',v:'g'},
+    ]
+  },
+  {
+    e:'🧋', t:'你点奶茶时最在意的是：',
+    o:[
+      {t:'哪个热量低，喝了不会有负罪感（虽然最后还是点了全糖）',v:'i'},
+      {t:'能不能免费加料，薅一次算一次',v:'w'},
+      {t:'杯套好不好看，拍完照发朋友圈再说',v:'s'},
+      {t:'有没有今天限定款，不喝感觉亏了一个亿',v:'g'},
+    ]
+  },
+  {
+    e:'🏠', t:'理想的周末是什么画风？',
+    o:[
+      {t:'躺平三件套：外卖到床边 + 手机充着电 + 被子不叠',v:'i'},
+      {t:'学点新东西搞副业，周末比工作日还忙',v:'w'},
+      {t:'约朋友探店密室剧本杀，怎么嗨怎么来',v:'g'},
+      {t:'出去拍照打卡发小红书，周末不营业等于没过',v:'s'},
+    ]
+  },
+  {
+    e:'😭', t:'月底看到账单时的第一反应：',
+    o:[
+      {t:'心如止水，反正还不完，毁灭吧赶紧的',v:'i'},
+      {t:'打开 Excel 逐笔分析，痛定思痛决定下个月开始省钱',v:'w'},
+      {t:'截图发朋友圈：又是吃土的一个月，配个裂开表情',v:'s'},
+      {t:'还了最低还款，剩下的继续花，人生苦短及时行乐',v:'g'},
+    ]
+  },
+  {
+    e:'📱', t:'你刷短视频最常见的画风是：',
+    o:[
+      {t:'猫猫狗狗治愈日常 ASMR，看了就想哭不知道为什么',v:'i'},
+      {t:'职场生存技巧、搞钱方法论、自律 vlog 三件套',v:'w'},
+      {t:'抽象整活搞笑切片，精神状态美丽的那种',v:'g'},
+      {t:'穿搭探店美妆生活方式，看完感觉自己也能当博主',v:'s'},
+    ]
+  },
+  {
+    e:'🙃', t:'遇到糟心事你一般怎么调理？',
+    o:[
+      {t:'一个人戴着耳机发呆，让情绪自己流走',v:'i'},
+      {t:'出去大吃一顿，化悲愤为食欲',v:'g'},
+      {t:'发条仅自己可见的朋友圈疯狂输出',v:'s'},
+      {t:'疯狂工作/学习，用忙碌麻痹自己',v:'w'},
+    ]
+  },
+  {
+    e:'🔮', t:'2026 年了，给你一个超能力你会选：',
+    o:[
+      {t:'隐身——这样就能永远宅着不被任何人发现',v:'i'},
+      {t:'分身——一个上班，一个搞副业，一个去旅游',v:'w'},
+      {t:'瞬移——想去哪就去哪，全球打卡',v:'s'},
+      {t:'读心术——看看旁边这人在想什么（主要是想吃瓜）',v:'g'},
+    ]
+  },
+];
+
+// ===== RESULTS =====
+const R = {
+  i:{
+    e:'🦥',l:'终极摆烂艺术家',
+    sub:'你已看破红尘，和沙发成为命运共同体',
+    d:'你是 <span class="highlight">躺平界的 OG</span>。别人卷生卷死的时候，你已经在研究怎么躺着最舒服。社交对你来说是能量消耗行为，需要提前三天做心理建设。你不卷，不是因为卷不动，是觉得没必要。你的人生哲学可以概括为八个字：<span class="highlight">「来都来了，躺着吧」</span>。别人在焦虑未来，你在焦虑外卖能不能送到床边。在这个浮躁的世界里，你是那个稳如老狗的人。建议把你的状态纹在身上：<span class="highlight">「电量 20%，勿扰」</span>。',
+    tg:['🏠 床是本体','😴 社恐晚期','📱 网上冲浪十级','🧸 安全感来自被子','🫥 已读不回专业户']
+  },
+  w:{
+    e:'🐝',l:'卷心菜成精',
+    sub:'你卷的不是工作，是寂寞',
+    d:'你是 <span class="highlight">内卷时代的六边形战士</span>。别人在摸鱼的时候你在写周报，别人在约会的时候你在回钉钉，别人在睡觉的时候你在看副业教程。你的年度关键词是<span class="highlight">「搞钱」</span>，你的手机里常驻三个记账 App，你的备忘录是满满的自律计划。虽然嘴上天天说想躺平，身体却很诚实地打开了 Excel。你是朋友圈里那个 "别人家的孩子"，也是最容易过劳的那个。<span class="highlight">温馨提示：记得呼吸</span>，钱是赚不完的，但命是。',
+    tg:['💼 工位钉子户','☕ 咖啡当水喝','📊 Excel 美学大师','🔥 一边骂一边卷','💸 搞钱第一人']
+  },
+  g:{
+    e:'🤪',l:'精神状态美丽代言人',
+    sub:'人活着不就是为了整活吗？',
+    d:'你就是朋友圈的 <span class="highlight">抽象之王/女王</span>。哪里有热闹哪里就有你，你是气氛组编内人员，是群聊里的表情包库，是那个永远在说<span class="highlight">「哈哈哈哈哈哈」</span>的人。你的人生宗旨是：人生苦短，整活要狠。从密室到音乐节到随机跳舞，你的周末永远排满。情绪起伏比 A股 还刺激，上一秒还在 emo，下一秒就发了条整活视频。朋友们都说你<span class="highlight">「精神状态美丽」</span>，你也分不清这是夸还是骂，但你选择欣然接受。<br>你的名言：<span class="highlight">「不疯魔不成活，懂了以上随便」</span>。',
+    tg:['🎉 气氛组组长','🎮 又菜又爱玩','🤣 行走的表情包','🌀 情绪过山车VIP','🔥 精神状态美丽']
+  },
+  s:{
+    e:'📸',l:'社交恐怖分子',
+    sub:'e 人中的 e 人，i 人眼中的外星生物',
+    d:'你就是那个 <span class="highlight">在电梯里都能和陌生人聊起来的社交牛逼症</span>重度患者。你的手机相册里 90% 的照片都在等着发朋友圈，每一条朋友圈文案都要想半小时。你享受被关注的感觉，也擅长在任何场合左右逢源。别人在社恐的时候你在社牛，别人还没开口你已经把天聊完了。你是 <span class="highlight">小红书原生居民</span>，是探店特种兵，是打卡狂魔。朋友对你的评价：<span class="highlight">「她/他好像跟谁都能聊三小时」</span>。<br>建议改名为：<span class="highlight">「交际花 3.0 Pro Max Ultra」</span>。',
+    tg:['🗣️ 社牛症晚期','📱 朋友圈文案大师','👗 穿搭博主预备役','📍 探店特种兵','✨ 人群中必须闪耀']
+  }
+};
+
+// ===== COLORS =====
+const COLORS = {i:'#38bdf8',w:'#f97316',g:'#a855f7',s:'#ff2d78'};
+const LABELS = {i:'摆烂',w:'搞钱',g:'整活',s:'社交'};
+const EMOJIS = {i:'🦥',w:'🐝',g:'🤪',s:'📸'};
+
+let cur=0, scores={i:0,w:0,g:0,s:0};
+let sceneInterval=null;
+
+// ===== SCENE PARTICLES =====
+const SCENE_EMOJIS = {
+  i:['🛏️','🛋️','🧸','🍕','📱','😴','🫥','☁️'],
+  w:['📊','☕','💼','📈','💰','⌨️','🔥','📋'],
+  g:['🎉','🤣','🎮','🔥','💀','🌀','🎪','✨'],
+  s:['📸','📍','👗','✨','💄','🎭','📱','💅']
+};
+
+function setScene(type){
+  const bg=document.getElementById('sceneBg');
+  if(!bg)return;
+  bg.className='scene-bg';
+  bg.innerHTML='';
+  if(sceneInterval){clearInterval(sceneInterval);sceneInterval=null}
+  const emojis=SCENE_EMOJIS[type]||SCENE_EMOJIS.i;
+  // spawn initial batch
+  for(let i=0;i<24;i++)spawnSceneParticle(bg,emojis,type);
+  // keep spawning
+  sceneInterval=setInterval(()=>spawnSceneParticle(bg,emojis,type),600);
+}
+
+function spawnSceneParticle(bg,emojis,type){
+  const el=document.createElement('div');
+  el.className='scene-particle';
+  el.textContent=emojis[Math.floor(Math.random()*emojis.length)];
+  el.style.left=Math.random()*100+'%';
+  el.style.bottom='-20px';
+  el.style.fontSize=(12+Math.random()*18)+'px';
+  const dur=type==='g'?2+Math.random()*3:5+Math.random()*12;
+  el.style.animationDuration=dur+'s';
+  el.style.animationDelay=Math.random()*2+'s';
+  el.style.opacity=(.15+Math.random()*.25).toFixed(2);
+  bg.appendChild(el);
+  // auto clean
+  setTimeout(()=>el.remove(),(dur+2)*1000);
+}
+
+function clearScene(){
+  if(sceneInterval){clearInterval(sceneInterval);sceneInterval=null}
+  const bg=document.getElementById('sceneBg');
+  if(bg){bg.className='scene-bg';bg.innerHTML=''}
+}
+
+// ===== DANMAKU =====
+const DANMAKU_TEXTS = [
+  {t:'可爱',c:'pink'},
+  {t:'紧张',c:'orange'},
+  {t:'太有耐心了',c:'green'},
+  {t:'你是魔鬼吗',c:'purp'},
+  {t:'真实',c:'blue'},
+  {t:'笑死',c:'yellow'},
+  {t:'蚌埠住了',c:'cyan'},
+  {t:'懂了',c:'green'},
+  {t:'好家伙',c:'orange'},
+  {t:'离谱',c:'pink'},
+  {t:'太真实了',c:'blue'},
+  {t:'这是在演我',c:'purp'},
+  {t:'精神状态美丽',c:'yellow'},
+  {t:'典中典',c:'cyan'},
+  {t:'你不对劲',c:'orange'},
+  {t:'直接破防',c:'pink'},
+  {t:'好好好',c:'green'},
+  {t:'硬核',c:'blue'},
+  {t:'蚌埠住了',c:'purp'},
+  {t:'麻了',c:'yellow'},
+];
+
+function fireDanmaku(count){
+  const c=document.getElementById('danmakuContainer');
+  if(!c)return;
+  const batch=Math.min(count||1,6);
+  for(let i=0;i<batch;i++){
+    setTimeout(()=>{
+      const d=DANMAKU_TEXTS[Math.floor(Math.random()*DANMAKU_TEXTS.length)];
+      const el=document.createElement('div');
+      el.className='danmaku '+d.c;
+      el.textContent=d.t;
+      el.style.top=(6+Math.random()*78)+'%';
+      el.style.fontSize=(13+Math.random()*7)+'px';
+      const dur=4+Math.random()*5;
+      el.style.animationDuration=dur+'s';
+      el.style.animationDelay=(Math.random()*1.2)+'s';
+      c.appendChild(el);
+      setTimeout(()=>el.remove(),(dur+2)*1000);
+    },i*150);
+  }
+}
+
+function clearDanmaku(){
+  const c=document.getElementById('danmakuContainer');
+  if(c)c.innerHTML='';
+}
+
+function startQuiz(){
+  cur=0; scores={i:0,w:0,g:0,s:0};
+  clearScene(); clearDanmaku();
+  document.getElementById('startCard').style.display='none';
+  document.getElementById('resultCard').style.display='none';
+  document.getElementById('progressWrap').style.display='block';
+  document.getElementById('questionCard').style.display='block';
+  showQ();
+}
+
+function showQ(){
+  const q=Q[cur];
+  document.getElementById('qNumber').textContent=`问题 ${String(cur+1).padStart(2,'0')}`;
+  document.getElementById('qEmoji').textContent=q.e;
+  document.getElementById('qText').innerHTML=q.t;
+  document.getElementById('qProgress').textContent=`${cur+1} / ${Q.length}`;
+  document.getElementById('qLabel').textContent=`第 ${cur+1} 题`;
+  document.getElementById('progressFill').style.width=(cur/Q.length*100)+'%';
+
+  // pick a scene vibe based on current q's first option or weighted
+  const types=q.o.map(o=>o.v);
+  const vibe=types[Math.floor(Math.random()*types.length)];
+  setScene(vibe);
+
+  const c=document.getElementById('options');c.innerHTML='';
+  q.o.forEach((o,i)=>{
+    const d=document.createElement('div');d.className='option';
+    d.innerHTML=`<span class="option-letter">${String.fromCharCode(65+i)}</span><span>${o.t}</span>`;
+    d.dataset.value=o.v;
+    d.onclick=()=>selectOpt(d,o.v);
+    c.appendChild(d);
+  });
+
+  const card=document.getElementById('questionCard');
+  card.style.animation='none';void card.offsetHeight;
+  card.style.animation='fadeSlideUp .4s ease';
+}
+
+function selectOpt(el,v){
+  document.querySelectorAll('.option').forEach(o=>o.classList.remove('selected'));
+  el.classList.add('selected');
+  scores[v]++;
+  fireDanmaku(3);
+  setTimeout(()=>{
+    cur++;
+    cur<Q.length?showQ():showResult();
+  },300);
+}
+
+function showResult(){
+  document.getElementById('progressWrap').style.display='none';
+  document.getElementById('questionCard').style.display='none';
+  document.getElementById('resultCard').style.display='block';
+
+  let max='i',maxV=0;
+  for(const[k,v]of Object.entries(scores))if(v>maxV){maxV=v;max=k;}
+  const r=R[max];
+
+  // switch scene to result type
+  setScene(max);
+
+  document.getElementById('resultEmoji').textContent=r.e;
+  document.getElementById('resultType').textContent=r.l;
+  document.getElementById('resultSubtitle').textContent=r.sub;
+  document.getElementById('resultDesc').innerHTML=r.d;
+
+  // tags
+  const tg=document.getElementById('resultTags');tg.innerHTML='';
+  r.tg.forEach(t=>{
+    const s=document.createElement('span');s.className='tag';s.textContent=t;tg.appendChild(s);
+  });
+
+  // bar chart
+  const bar=document.getElementById('resultBar');bar.innerHTML='';
+  const total=Object.values(scores).reduce((a,b)=>a+b,0)||1;
+  const order=['i','w','g','s'];
+  order.forEach(k=>{
+    const pct=(scores[k]/total*100);
+    const seg=document.createElement('div');
+    seg.className='result-bar-seg'+(k===max?' active':'');
+    seg.style.background=COLORS[k];
+    seg.style.width=pct+'%';
+    seg.innerHTML=`<span>${pct>8?Math.round(pct)+'%':''}</span>`;
+    bar.appendChild(seg);
+  });
+
+  // breakdown
+  const bd=document.getElementById('resultBreakdown');bd.innerHTML='';
+  order.forEach(k=>{
+    const d=document.createElement('div');d.className='br-item';
+    d.innerHTML=`
+      <span class="br-dot" style="background:${COLORS[k]}"></span>
+      <span class="br-label">${EMOJIS[k]} ${LABELS[k]}</span>
+      <span class="br-score" style="color:${COLORS[k]}">${scores[k]}</span>
+    `;
+    bd.appendChild(d);
+  });
+
+  launchConfetti();
+  scrollTo({top:0,behavior:'smooth'});
+}
+
+function launchConfetti(){
+  const c=document.getElementById('confettiContainer')||(()=>{
+    const e=document.createElement('div');e.className='confetti-container';e.id='confettiContainer';
+    document.body.appendChild(e);return e;
+  })();
+  c.innerHTML='';
+  const colors=['#ff2d78','#a855f7','#38bdf8','#f97316','#a3e635','#2dd4bf','#fbbf24'];
+  const shapes=['circle','rect','triangle'];
+  for(let i=0;i<100;i++){
+    const p=document.createElement('div');p.className='confetti';
+    const cl=colors[Math.floor(Math.random()*colors.length)];
+    const sz=5+Math.random()*9;
+    const lf=Math.random()*100;
+    const dr=2+Math.random()*3;
+    const dl=Math.random()*1.5;
+    const sh=shapes[Math.floor(Math.random()*shapes.length)];
+    p.style.left=lf+'%';p.style.width=sz+'px';p.style.height=sz+'px';
+    p.style.background=cl;p.style.animationDuration=dr+'s';p.style.animationDelay=dl+'s';
+    if(sh==='circle')p.style.borderRadius='50%';
+    else if(sh==='triangle'){
+      p.style.width='0';p.style.height='0';p.style.background='transparent';
+      p.style.borderLeft=sz/2+'px solid transparent';
+      p.style.borderRight=sz/2+'px solid transparent';
+      p.style.borderBottom=sz+'px solid '+cl;
+    }
+    c.appendChild(p);
+  }
+  setTimeout(()=>c.innerHTML='',5000);
+}
+
+function shareResult(){
+  const e=document.getElementById('resultEmoji').textContent;
+  const t=document.getElementById('resultType').textContent;
+  const txt=`🧠 我测出了我的 2026 精神状态：${e} ${t}！\n你也来测测你是什么当代年轻人？`;
+
+  if(navigator.share){navigator.share({title:'精神状态鉴定器',text:txt}).catch(()=>{})}
+  else{
+    navigator.clipboard.writeText(txt).then(()=>{
+      const btn=document.querySelector('.result-actions .btn-outline');
+      btn.textContent='✅ 已复制！拷打他们去';
+      btn.classList.add('shake');
+      setTimeout(()=>{btn.textContent='📤 拷打朋友';btn.classList.remove('shake');},2000);
+    }).catch(()=>{prompt('复制以下内容分享：',txt);});
+  }
+}
+</script>
+</body>
+</html>
