@@ -226,29 +226,45 @@ function burst(row) {
 
 // ═══ WebSocket ═══
 
+let connectTimeout = null;
+
 function connect(callback) {
   if (ws && ws.readyState === WebSocket.OPEN) { callback(); return; }
-  ws = new WebSocket(WS_URL);
-  ws.onopen = () => { console.log('connected'); callback(); };
+  if (ws && ws.readyState === WebSocket.CONNECTING) { return; }
+  document.getElementById('app').innerHTML = '<div class="lobby-card"><div class="spinner" style="font-size:40px">🔗</div><p style="margin-top:12px">连接服务器中...</p><p style="font-size:12px;color:var(--d)">如果长时间卡住，请检查网络</p></div>';
+  try {
+    ws = new WebSocket(WS_URL);
+  } catch(e) {
+    document.getElementById('app').innerHTML = '<div class="lobby-card"><p style="color:var(--lose)">连接失败: WebSocket 不支持</p><button class="btn btn-outline" onclick="renderLobby()">返回</button></div>';
+    return;
+  }
+  clearTimeout(connectTimeout);
+  connectTimeout = setTimeout(() => {
+    if (ws.readyState !== WebSocket.OPEN) {
+      ws.close();
+      document.getElementById('app').innerHTML = '<div class="lobby-card"><p style="color:var(--lose)">连接超时</p><p style="font-size:12px;color:var(--d)">服务器可能已离线，请稍后再试</p><button class="btn btn-outline" onclick="renderLobby()">返回</button></div>';
+    }
+  }, 10000);
+  ws.onopen = () => { clearTimeout(connectTimeout); console.log('connected'); callback(); };
+  ws.onerror = (e) => {
+    clearTimeout(connectTimeout);
+    console.log('ws error', e);
+    document.getElementById('app').innerHTML = '<div class="lobby-card"><p style="color:var(--lose)">连接失败</p><p style="font-size:12px;color:var(--d)">服务器不可达，检查网络或稍后再试</p><button class="btn btn-outline" onclick="renderLobby()">返回</button></div>';
+  };
   ws.onmessage = (e) => {
     const msg = JSON.parse(e.data);
-    console.log('msg:', msg.type);
-
     if (msg.type === 'opponent_joined') {
       document.getElementById('statusDot').className = 'dot on';
       document.getElementById('statusText').textContent = '对手已加入！';
-    }
-    else if (msg.type === 'opponent_left') {
+    } else if (msg.type === 'opponent_left') {
       document.getElementById('statusDot').className = 'dot';
       document.getElementById('statusText').textContent = '对手离开了...';
-    }
-    else if (msg.type === 'result') {
+    } else if (msg.type === 'result') {
       renderBattle(msg.my_picks, msg.opp_picks, msg.results, msg.my_wins, msg.opp_wins);
       myPicks = [null,null,null];
     }
   };
   ws.onclose = () => { console.log('disconnected'); };
-  ws.onerror = () => { console.log('ws error'); };
 }
 
 function createRoom() {
