@@ -223,6 +223,41 @@ body{
 .tag:hover{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.12);color:var(--text)}
 .result-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
 
+/* ---- MATCH ---- */
+.result-match-wrap{margin:20px 0;text-align:center}
+.match-divider{
+  display:flex;align-items:center;gap:12px;
+  margin-bottom:16px;font-size:13px;color:var(--dim)
+}
+.match-divider::before,.match-divider::after{
+  content:'';flex:1;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.1),transparent)
+}
+.match-hint{font-size:13px;color:var(--dim);line-height:1.6;margin-bottom:10px}
+.match-code{
+  display:inline-block;
+  font-family:'Space Grotesk',monospace;
+  font-size:28px;font-weight:800;letter-spacing:6px;
+  background:linear-gradient(135deg,var(--pink),var(--purp));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  padding:10px 20px;margin:8px 0
+}
+.match-input{
+  background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.1);
+  border-radius:11px;padding:10px 14px;
+  font-family:'Space Grotesk',monospace;
+  font-size:18px;font-weight:700;letter-spacing:4px;
+  color:var(--text);text-align:center;outline:none;transition:border-color .2s
+}
+.match-input:focus{border-color:var(--pink);box-shadow:0 0 20px rgba(255,45,120,.08)}
+.match-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:8px 18px;border-radius:20px;font-size:13px;font-weight:600;margin:6px 0
+}
+.match-badge.success{background:rgba(45,212,191,.1);border:1px solid rgba(45,212,191,.2);color:var(--cyan)}
+.match-badge.fail{background:rgba(255,45,120,.08);border:1px solid rgba(255,45,120,.15);color:var(--pink)}
+.match-pair{font-size:24px;font-weight:800;margin:6px 0 2px}
+
 /* ---- SCENE BG ---- */
 .scene-bg{
   position:fixed;inset:0;z-index:0;pointer-events:none;
@@ -406,7 +441,6 @@ body{
       <div class="result-bar-wrap">
         <div class="result-bar" id="resultBar"></div>
         <div class="result-breakdown" id="resultBreakdown"></div>
-      </div>
 
       <div class="result-desc">
         <h4>🧾 鉴定报告</h4>
@@ -414,6 +448,32 @@ body{
       </div>
 
       <div class="result-tags" id="resultTags"></div>
+
+      <!-- MATCH SECTION -->
+      <div class="result-match-wrap" id="matchWrap">
+        <div class="match-divider">
+          <span>💞 灵魂匹配</span>
+        </div>
+        <div id="matchDefault">
+          <p class="match-hint">生成匹配码发给朋友，<br>看 ta 是不是你的精神 twin flame</p>
+          <button class="btn btn-primary btn-sm" onclick="showMatchCode()">🔗 生成匹配码</button>
+          <button class="btn btn-outline btn-sm" onclick="showMatchInput()">📥 输入匹配码</button>
+        </div>
+        <div id="matchCodeDisplay" style="display:none;text-align:center">
+          <p class="match-hint">把下面的码发给你的朋友👇</p>
+          <div class="match-code" id="matchCodeText">------</div>
+          <button class="btn btn-outline btn-sm" onclick="copyMatchCode()">📋 复制匹配码</button>
+          <p class="match-hint" style="margin-top:12px;font-size:12px">对方在结果页输入这个码，<br>就能看你们配不配</p>
+        </div>
+        <div id="matchInputDisplay" style="display:none">
+          <p class="match-hint">输入对方给你的匹配码👇</p>
+          <div style="display:flex;gap:8px;max-width:300px;margin:0 auto">
+            <input class="match-input" id="matchCodeInput" placeholder="例如：A3K2X9" maxlength="6" style="flex:1">
+            <button class="btn btn-primary btn-sm" onclick="doMatch()">匹配</button>
+          </div>
+          <div id="matchResult" style="margin-top:14px"></div>
+        </div>
+      </div>
 
       <div class="result-actions">
         <button class="btn btn-primary" onclick="startQuiz()">🔄 再来一次</button>
@@ -629,6 +689,97 @@ function fireDanmaku(count){
 function clearDanmaku(){
   const c=document.getElementById('danmakuContainer');
   if(c)c.innerHTML='';
+}
+
+// ===== MATCH =====
+let myMatchCode = '';
+
+function genMatchCode(){
+  const c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let code='';
+  for(let i=0;i<6;i++)code+=c[Math.floor(Math.random()*c.length)];
+  return code;
+}
+
+function showMatchCode(){
+  if(!myMatchCode)myMatchCode=genMatchCode();
+  // save to localStorage so it persists
+  const key='personality_match_'+myMatchCode;
+  const data=JSON.stringify({
+    answers:scores,
+    type:document.getElementById('resultType').textContent,
+    emoji:document.getElementById('resultEmoji').textContent,
+    maxType: (()=>{let m='i',mv=0;for(const[k,v]of Object.entries(scores))if(v>mv){mv=v;m=k}return m})()
+  });
+  try{localStorage.setItem(key,data)}catch(e){}
+  document.getElementById('matchDefault').style.display='none';
+  document.getElementById('matchInputDisplay').style.display='none';
+  document.getElementById('matchCodeDisplay').style.display='block';
+  document.getElementById('matchCodeText').textContent=myMatchCode;
+}
+
+function showMatchInput(){
+  document.getElementById('matchDefault').style.display='none';
+  document.getElementById('matchCodeDisplay').style.display='none';
+  document.getElementById('matchInputDisplay').style.display='block';
+}
+
+function copyMatchCode(){
+  const code=document.getElementById('matchCodeText').textContent;
+  navigator.clipboard.writeText('我的精神状态匹配码：'+code+'，来测测咱俩配不配！ https://lei553943-cmd.github.io/personality-test/').then(()=>{
+    const btn=event.target;
+    btn.textContent='✅ 已复制！';
+    setTimeout(()=>{btn.textContent='📋 复制匹配码'},1500);
+  }).catch(()=>{
+    prompt('复制以下内容：','我的精神状态匹配码：'+code);
+  });
+}
+
+function doMatch(){
+  const input=document.getElementById('matchCodeInput');
+  const code=input.value.trim().toUpperCase();
+  if(code.length!==6){showMatchMsg('<span class="match-badge fail">❌ 匹配码必须是 6 位</span>');return}
+  const myKey='personality_match_'+code;
+  let otherData=null;
+  try{otherData=JSON.parse(localStorage.getItem(myKey))}catch(e){}
+  if(!otherData){
+    showMatchMsg('<span class="match-badge fail">😅 没找到这个匹配码，确认对方生成后你再试试</span>');
+    return;
+  }
+  // compare
+  const myMax=(()=>{let m='i',mv=0;for(const[k,v]of Object.entries(scores))if(v>mv){mv=v;m=k}return m})();
+  const theirMax=otherData.maxType||'i';
+  const match=myMax===theirMax;
+  if(match){
+    const pairName=getPairName(myMax);
+    showMatchMsg(`
+      <span class="match-badge success">✅ 匹配成功！你们是灵魂搭档</span>
+      <div class="match-pair">${otherData.emoji} ${document.getElementById('resultEmoji').textContent} = ${pairName}</div>
+      <p style="font-size:13px;color:var(--dim);line-height:1.6">
+        你们两个都是 <strong>${otherData.type}</strong> / <strong>${document.getElementById('resultType').textContent}</strong><br>
+        精神同频，是天选的 XX 关系
+      </p>
+    `);
+    fireDanmaku(8);
+  }else{
+    showMatchMsg(`
+      <span class="match-badge fail">😅 不太搭哦</span>
+      <p style="font-size:13px;color:var(--dim);line-height:1.6">
+        你是 <strong>${document.getElementById('resultType').textContent}</strong><br>
+        ta 是 <strong>${otherData.type}</strong><br>
+        虽然类型不同，但差异才是吸引力嘛 😏
+      </p>
+    `);
+  }
+}
+
+function getPairName(type){
+  const names={i:'🦥 躺平互助小组',w:'🐝 卷王联盟',g:'🤪 抽象二人转',s:'📸 社交双子星'};
+  return names[type]||'✨ 精神 twin flame';
+}
+
+function showMatchMsg(html){
+  document.getElementById('matchResult').innerHTML=html;
 }
 
 function startQuiz(){
