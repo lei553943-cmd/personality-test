@@ -103,7 +103,8 @@ const G = {rock:'✊', scissors:'✌️', paper:'✋'};
 
 // ═══ WS URL — 从 URL 参数读取，或手动填写 ═══
 const params = new URLSearchParams(location.search);
-const WS_URL = params.get('ws') || 'wss://small-actors-divide.loca.lt';
+const WS_URL = params.get('ws') || 'wss://sour-coats-say.loca.lt';
+const ACTIVATE_URL = WS_URL.replace('wss://', 'https://');
 let ws = null;
 let roomId = null;
 let playerId = null;
@@ -116,12 +117,21 @@ function renderLobby() {
     <div class="lobby-card">
       <h2>创建或加入房间</h2>
       <p class="desc">生成房间码发给朋友<br>或者输入朋友的房间码加入</p>
+      <div id="activateMsg" style="background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);border-radius:12px;padding:12px;margin-bottom:12px;font-size:13px">
+        <strong>首次使用必读</strong><br>
+        <a href="${ACTIVATE_URL}" target="_blank" style="color:#fbbf24;font-weight:700;text-decoration:underline" onclick="activated()">点此激活连接</a>（新窗口打开，看到 "Tunnel" 页面后点按钮，然后回来刷新）
+      </div>
       <button class="btn btn-purple" onclick="createRoom()">🎲 创建房间</button>
       <div class="divider">或</div>
       <input class="inp" id="roomInput" placeholder="输入房间码" maxlength="4" autocomplete="off">
       <button class="btn btn-gold" onclick="joinRoom()">🚪 加入房间</button>
     </div>
   `;
+}
+
+function activated() {
+  const el = document.getElementById('activateMsg');
+  if (el) el.innerHTML = '<span style="color:var(--win)">激活中...完成后刷新页面即可</span>';
 }
 
 function renderRoom() {
